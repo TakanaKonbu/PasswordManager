@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,13 +25,26 @@ fun AccountListScreen(
     navController: NavController,
     viewModel: AccountViewModel
 ) {
-    val accounts by viewModel.allAccounts.collectAsState()
+    val accounts by viewModel.filteredAccounts.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("パスワードマネージャー") }
-            )
+            Column {
+                TopAppBar(
+                    title = { Text("パスワードマネージャー") }
+                )
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = {
+                        searchQuery = it
+                        viewModel.updateSearchQuery(it)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -56,6 +70,26 @@ fun AccountListScreen(
             }
         }
     }
+}
+
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier,
+        placeholder = { Text("検索") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+        )
+    )
 }
 
 @Composable
