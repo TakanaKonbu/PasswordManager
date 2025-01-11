@@ -1,9 +1,15 @@
 package com.takanakonbu.passwordmanager.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.takanakonbu.passwordmanager.data.model.AccountEntity
@@ -40,7 +46,15 @@ fun AccountFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (accountId == null) "アカウント追加" else "アカウント編集") }
+                title = { Text(if (accountId == null) "アカウント追加" else "アカウント編集") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -54,7 +68,8 @@ fun AccountFormScreen(
                 value = serviceName,
                 onValueChange = { serviceName = it },
                 label = { Text("ログイン先") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -62,7 +77,12 @@ fun AccountFormScreen(
                 value = loginId,
                 onValueChange = { loginId = it },
                 label = { Text("ログインID") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,  // メール用のキーボード（@マークが入力しやすい）
+                    imeAction = ImeAction.Next          // 右下のボタンで次の入力欄へ
+                )
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -70,7 +90,12 @@ fun AccountFormScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("メールアドレス") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,  // メール用のキーボード（@マークが入力しやすい）
+                    imeAction = ImeAction.Next          // 右下のボタンで次の入力欄へ
+                )
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -78,7 +103,12 @@ fun AccountFormScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("パスワード") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,  // パスワード用のキーボード
+                    imeAction = ImeAction.Next            // 右下のボタンで次の入力欄へ
+                )
             )
             Spacer(modifier = Modifier.height(8.dp))
 
