@@ -27,13 +27,15 @@ fun AccountListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("パスワードマネージャー") },
-                actions = {
-                    IconButton(onClick = { navController.navigate(Screen.AddAccount.route) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Account")
-                    }
-                }
+                title = { Text("パスワードマネージャー") }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(Screen.AddAccount.route) }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Account")
+            }
         }
     ) { paddingValues ->
         LazyColumn(
