@@ -8,11 +8,13 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.takanakonbu.passwordmanager.data.model.AccountEntity
+import com.takanakonbu.passwordmanager.ui.theme.PrimaryColor
 import com.takanakonbu.passwordmanager.ui.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +139,11 @@ fun AccountFormScreen(
                     }
                     navController.navigateUp()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryColor,
+                    contentColor = Color.White
+                )
             ) {
                 Text(if (accountId == null) "追加" else "更新")
             }

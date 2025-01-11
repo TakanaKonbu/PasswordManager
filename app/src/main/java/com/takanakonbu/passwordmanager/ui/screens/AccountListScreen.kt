@@ -10,10 +10,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.takanakonbu.passwordmanager.data.model.AccountEntity
 import com.takanakonbu.passwordmanager.ui.navigation.Screen
+import com.takanakonbu.passwordmanager.ui.theme.PrimaryColor
 import com.takanakonbu.passwordmanager.ui.viewmodel.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +34,9 @@ fun AccountListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddAccount.route) }
+                onClick = { navController.navigate("AddAccount") },
+                containerColor = PrimaryColor,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Account")
             }
