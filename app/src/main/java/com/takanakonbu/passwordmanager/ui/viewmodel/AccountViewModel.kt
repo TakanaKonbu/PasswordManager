@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.takanakonbu.passwordmanager.data.db.AppDatabase
 import com.takanakonbu.passwordmanager.data.model.AccountEntity
 import com.takanakonbu.passwordmanager.data.repository.AccountRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,9 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
     val allAccounts: StateFlow<List<AccountEntity>>
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
+
+    // アカウント詳細を取得する関数を追加
+    fun getAccountById(id: Long): Flow<AccountEntity?> = repository.getAccountById(id)
 
     init {
         val accountDao = AppDatabase.getDatabase(application).accountDao()

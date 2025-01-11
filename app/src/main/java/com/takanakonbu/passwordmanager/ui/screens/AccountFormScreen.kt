@@ -22,6 +22,21 @@ fun AccountFormScreen(
     var password by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
 
+    // 編集時にアカウント情報を読み込む
+    LaunchedEffect(accountId) {
+        accountId?.let { id ->
+            viewModel.getAccountById(id).collect { account ->
+                account?.let {
+                    serviceName = it.serviceName
+                    loginId = it.loginId
+                    email = it.email
+                    password = it.password
+                    note = it.note
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
