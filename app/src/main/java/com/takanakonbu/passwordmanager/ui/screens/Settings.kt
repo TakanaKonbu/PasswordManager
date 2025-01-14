@@ -40,8 +40,25 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // 設定項目をここに追加
-            Text("設定画面")
+            Text("🔐パスワードを生成する")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("⬆️バックアップファイルの作成")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("⬇️バックアップファイルの復元")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("📝プライバシーポリシー")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("⚠️注意事項")
+            Text("バックアップファイルは必ずGoogleDriveやDropboxと言ったサービスにアップロードしてください。\n" +
+                    "機種を変更された際に新しい機種からファイルにアクセスできるようお願いします。")
         }
     }
 }
