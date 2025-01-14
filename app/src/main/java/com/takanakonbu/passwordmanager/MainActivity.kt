@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.takanakonbu.passwordmanager.ui.navigation.Screen
 import com.takanakonbu.passwordmanager.ui.screens.AccountFormScreen
 import com.takanakonbu.passwordmanager.ui.screens.AccountListScreen
+import com.takanakonbu.passwordmanager.ui.screens.SettingsScreen
 import com.takanakonbu.passwordmanager.ui.theme.PasswordManagerTheme
 import com.takanakonbu.passwordmanager.ui.viewmodel.AccountViewModel
 
@@ -53,6 +54,9 @@ class MainActivity : ComponentActivity() {
                                 viewModel = viewModel,
                                 accountId = backStackEntry.arguments?.getLong("accountId")
                             )
+                        }
+                        composable(Screen.Settings.route) {
+                            SettingsScreen(navController)
                         }
                     }
                 }

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -36,17 +37,18 @@ fun AccountListScreen(
                     title = { Text("パスワードマネージャー") },
                     Modifier
                         .padding(bottom = 8.dp)
-                        .shadow(elevation = 4.dp)
-                )
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = {
-                        searchQuery = it
-                        viewModel.updateSearchQuery(it)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .shadow(elevation = 4.dp),
+                    actions = {
+                        IconButton(
+                            onClick = { navController.navigate(Screen.Settings.route) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = PrimaryColor
+                            )
+                        }
+                    }
                 )
             }
         },
