@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,7 @@ fun AccountListScreen(
 
     Scaffold(
         topBar = {
+            // AccountListScreen.kt のColumnブロックを修正
             Column {
                 TopAppBar(
                     title = { Text("パスワードマネージャー") },
@@ -49,6 +51,16 @@ fun AccountListScreen(
                             )
                         }
                     }
+                )
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = {
+                        searchQuery = it
+                        viewModel.updateSearchQuery(it)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
         },
@@ -107,24 +119,23 @@ fun AccountItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable(onClick = onItemClick)
+            .padding(vertical = 4.dp, horizontal = 16.dp)
+            .clickable(onClick = onItemClick),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF6F1FF)
+        )
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(8.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
                 Text(
                     text = account.serviceName,
                     style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = account.loginId,
-                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             IconButton(onClick = onDeleteClick) {
