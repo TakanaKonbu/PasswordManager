@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -32,7 +33,10 @@ fun AccountListScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text("パスワードマネージャー") }
+                    title = { Text("パスワードマネージャー") },
+                    Modifier
+                        .padding(bottom = 8.dp)
+                        .shadow(elevation = 4.dp)
                 )
                 SearchBar(
                     query = searchQuery,
