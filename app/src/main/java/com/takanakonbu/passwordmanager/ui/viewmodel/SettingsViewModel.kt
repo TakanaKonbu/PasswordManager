@@ -1,18 +1,26 @@
 package com.takanakonbu.passwordmanager.ui.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.takanakonbu.passwordmanager.data.backup.BackupManager
 import com.takanakonbu.passwordmanager.data.datastore.SettingsDataStore
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import com.takanakonbu.passwordmanager.data.db.AppDatabase
+import com.takanakonbu.passwordmanager.data.repository.AccountRepository
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsDataStore = SettingsDataStore(application)
+    private val backupManager = BackupManager(application)
+    private val repository: AccountRepository
 
-    // stateInのinitialValueをfalseに明示的に設定
+    init {
+        val accountDao = AppDatabase.getDatabase(application).accountDao()
+        repository = AccountRepository(accountDao)
+    }
+
     val appLockEnabled: StateFlow<Boolean> = settingsDataStore.appLockEnabled
         .stateIn(
             scope = viewModelScope,
@@ -20,7 +28,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             initialValue = false
         )
 
-    // nullableな文字列型として明示的に型指定
     val appLockPin: StateFlow<String?> = settingsDataStore.appLockPin
         .stateIn(
             scope = viewModelScope,
@@ -37,6 +44,25 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setAppLockPin(pin: String) {
         viewModelScope.launch {
             settingsDataStore.setAppLockPin(pin)
+        }
+    }
+
+    suspend fun createBackup(uri: Uri): Result<Unit> = runCatching {
+        repository.getAllAccounts().first().let { accounts ->
+            backupManager.createBackup(accounts, uri)
+        }
+    }
+
+    suspend fun restoreBackup(uri: Uri): Result<Unit> = runCatching {
+        backupManager.restoreBackup(uri).getOrThrow().let { restoredAccounts ->
+            // 現在のアカウントを全て削除
+            repository.getAllAccounts().first().forEach { account ->
+                repository.deleteAccount(account)
+            }
+            // 復元したアカウントを保存
+            restoredAccounts.forEach { account ->
+                repository.insertAccount(account.copy(id = 0))  // IDを新規生成するために0にリセット
+            }
         }
     }
 }

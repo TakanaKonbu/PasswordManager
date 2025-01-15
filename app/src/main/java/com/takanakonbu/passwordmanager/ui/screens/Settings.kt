@@ -1,5 +1,8 @@
 package com.takanakonbu.passwordmanager.ui.screens
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,6 +22,7 @@ import com.takanakonbu.passwordmanager.ui.components.PinInputDialog
 import com.takanakonbu.passwordmanager.ui.navigation.Screen
 import com.takanakonbu.passwordmanager.ui.theme.PrimaryColor
 import com.takanakonbu.passwordmanager.ui.viewmodel.SettingsViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,6 +30,8 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val appLockEnabled by viewModel.appLockEnabled.collectAsState()
     var showPinDialog by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf<String?>(null) }
@@ -35,6 +42,40 @@ fun SettingsScreen(
         showErrorMessage?.let {
             snackbarHostState.showSnackbar(it)
             showErrorMessage = null
+        }
+    }
+
+    // バックアップファイル作成のランチャー
+    val backupLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                viewModel.createBackup(uri)
+                    .onSuccess {
+                        snackbarHostState.showSnackbar("バックアップを作成しました")
+                    }
+                    .onFailure { e ->
+                        showErrorMessage = "バックアップの作成に失敗しました: ${e.message}"
+                    }
+            }
+        }
+    }
+
+    // バックアップファイル復元のランチャー
+    val restoreLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                viewModel.restoreBackup(uri)
+                    .onSuccess {
+                        snackbarHostState.showSnackbar("バックアップを復元しました")
+                    }
+                    .onFailure { e ->
+                        showErrorMessage = "バックアップの復元に失敗しました: ${e.message}"
+                    }
+            }
         }
     }
 
@@ -79,7 +120,7 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // アプリロック設定
+            // セキュリティ設定
             SettingsSectionTitle(text = "セキュリティ")
             SettingsItem(
                 icon = "🔑",
@@ -119,12 +160,16 @@ fun SettingsScreen(
             SettingsItem(
                 icon = "⬆️",
                 title = "バックアップファイルの作成",
-                onClick = { /* TODO: バックアップ機能実装 */ }
+                onClick = {
+                    backupLauncher.launch("password-manager-backup-${System.currentTimeMillis()}.json")
+                }
             )
             SettingsItem(
                 icon = "⬇️",
                 title = "バックアップファイルの復元",
-                onClick = { /* TODO: リストア機能実装 */ }
+                onClick = {
+                    restoreLauncher.launch("application/json")
+                }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
