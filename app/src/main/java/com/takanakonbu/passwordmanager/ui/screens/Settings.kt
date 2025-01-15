@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,10 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            Text("🔑アプリ起動時にパスワードを使用する")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text("🔐パスワードを生成する")
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Spacer(modifier = Modifier.height(16.dp))
