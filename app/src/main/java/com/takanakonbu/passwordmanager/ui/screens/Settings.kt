@@ -1,17 +1,22 @@
 package com.takanakonbu.passwordmanager.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.takanakonbu.passwordmanager.ui.components.PinInputDialog
+import com.takanakonbu.passwordmanager.ui.navigation.Screen
+import com.takanakonbu.passwordmanager.ui.theme.PrimaryColor
 import com.takanakonbu.passwordmanager.ui.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,15 +27,29 @@ fun SettingsScreen(
 ) {
     val appLockEnabled by viewModel.appLockEnabled.collectAsState()
     var showPinDialog by remember { mutableStateOf(false) }
+    var showErrorMessage by remember { mutableStateOf<String?>(null) }
+
+    // エラーメッセージ表示用のSnackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(showErrorMessage) {
+        showErrorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            showErrorMessage = null
+        }
+    }
 
     if (showPinDialog) {
         PinInputDialog(
             title = "PINを設定",
             onDismiss = { showPinDialog = false },
             onConfirm = { pin ->
-                viewModel.setAppLockPin(pin)
-                viewModel.setAppLockEnabled(true)
-                showPinDialog = false
+                if (pin.length == 6) {
+                    viewModel.setAppLockPin(pin)
+                    viewModel.setAppLockEnabled(true)
+                    showPinDialog = false
+                } else {
+                    showErrorMessage = "PINは6桁で入力してください"
+                }
             }
         )
     }
@@ -39,7 +58,7 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = { Text("設定") },
-                Modifier
+                modifier = Modifier
                     .padding(bottom = 8.dp)
                     .shadow(elevation = 4.dp),
                 navigationIcon = {
@@ -51,7 +70,8 @@ fun SettingsScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -59,14 +79,13 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // アプリロック設定
+            SettingsSectionTitle(text = "セキュリティ")
+            SettingsItem(
+                icon = "🔑",
+                title = "アプリ起動時にパスワードを使用する",
+                onClick = null // Switchがあるので項目全体のクリックは無効
             ) {
-                Text("🔑 アプリ起動時にパスワードを使用する")
                 Switch(
                     checked = appLockEnabled,
                     onCheckedChange = { enabled ->
@@ -75,42 +94,133 @@ fun SettingsScreen(
                         } else {
                             viewModel.setAppLockEnabled(false)
                         }
-                    }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = PrimaryColor,
+                        checkedTrackColor = PrimaryColor.copy(alpha = 0.5f)
+                    )
                 )
             }
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(16.dp))
 
-            Text("🔐パスワードを生成する")
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Text("⬆️バックアップファイルの作成")
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("⬇️バックアップファイルの復元")
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("📝プライバシーポリシー")
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("⚠️注意事項")
-            Text(
-                "バックアップファイルは必ずGoogleDriveやDropboxと言ったサービスにアップロードしてください。\n" +
-                        "機種を変更された際に新しい機種からファイルにアクセスできるようお願いします。"
+            // ツール
+            SettingsSectionTitle(text = "ツール")
+            SettingsItem(
+                icon = "🔐",
+                title = "パスワードを生成する",
+                onClick = { navController.navigate(Screen.PasswordGenerator.route) }
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // バックアップ
+            SettingsSectionTitle(text = "バックアップ")
+            SettingsItem(
+                icon = "⬆️",
+                title = "バックアップファイルの作成",
+                onClick = { /* TODO: バックアップ機能実装 */ }
+            )
+            SettingsItem(
+                icon = "⬇️",
+                title = "バックアップファイルの復元",
+                onClick = { /* TODO: リストア機能実装 */ }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // その他
+            SettingsSectionTitle(text = "その他")
+            SettingsItem(
+                icon = "📝",
+                title = "プライバシーポリシー",
+                onClick = { /* TODO: プライバシーポリシー画面実装 */ }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // 注意事項
+            Text(
+                text = "⚠️ 注意事項",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "バックアップファイルは必ずGoogleDriveやDropboxといったクラウドストレージにアップロードしてください。\n" +
+                        "機種変更時に新しい機種からファイルにアクセスできるようお願いします。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            // アプリロック状態の表示
             if (appLockEnabled) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "PIN認証が有効です",
+                    text = "PIN認証が有効です",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SettingsSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+}
+
+@Composable
+private fun SettingsItem(
+    icon: String,
+    title: String,
+    onClick: (() -> Unit)?,
+    trailing: @Composable (() -> Unit)? = {
+        if (onClick != null) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Navigate",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 4.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = icon,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            trailing?.invoke()
         }
     }
 }
